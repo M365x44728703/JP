@@ -1,0 +1,42 @@
+
+name: NTTDataSolution
+
+on:
+  workflow_run:
+    workflows: ["Pack NTTDataSolution"]
+    branches: [main]
+    types: [completed]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    # Run only if the triggering workflow succeeded (for workflow_run),
+    # or always allow manual workflow_dispatch runs.
+    if: >
+      ${{
+        github.event_name == 'workflow_dispatch' ||
+        (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
+      }}
+    runs-on: windows-latest
+    environment: production
+
+    steps:
+      # Download the artifact produced by the triggering workflow run
+      - name: Download packed solution artifact
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          # Must match the workflow file name of your pack workflow in .github/workflows/
+          workflow: pack-solution.yml
+          # Must match the artifact name used in pack workflow (you used "packed-solution")
+          name: packed-solution
+          # Use the exact run that triggered this workflow
+          run_id: ${{ github.event.workflow_run.id }}
+          path: out
+
+      # Import solution into the target environment
+      - name: Import solution
+        uses: microsoft/powerplatform-actions/import-solution@v0
+        with:
+          environment-url: https://devpowerplatformpipelines.crm.dynamics.com
+          # IMPORTANT: this must match the zip file name created by your pack workflow
+          solution-file: out/NTTDataSolution.zip
