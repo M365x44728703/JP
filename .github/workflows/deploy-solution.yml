@@ -38,5 +38,7 @@ jobs:
         uses: microsoft/powerplatform-actions/import-solution@v0
         with:
           environment-url: https://devpowerplatformpipelines.crm.dynamics.com
+          user-name: admin@M365x44728703.onmicrosoft.com
+          password-secret: w86j8N0gNZ9T}^VcDP(+uvr([w$)73F3
           # IMPORTANT: this must match the zip file name created by your pack workflow
           solution-file: out/NTTDataSolution.zip
